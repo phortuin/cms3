@@ -1,0 +1,21 @@
+# vendor packages
+node_modules
+
+# project meta
+.idea
+.settings
+*.sublime-project
+*.sublime-workspace
+.vscode
+
+# npm cruft
+npm-debug.log
+
+# cupertino cruft
+.DS_Store
+
+# dist
+dist
+
+# environment vars
+.env

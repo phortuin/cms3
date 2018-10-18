@@ -43,7 +43,7 @@ app.get('/bucket/:bucket', (req, res, next) => {
     s3sync.getHTML(bucket)
         .then(data => gunzip(data.Body))
         .then(gunzippedBody => res.send(render(gunzippedBody, bucket)))
-        .catch(console.error)
+        .catch(next)
 })
 
 app.post('/bucket/:bucket', (req, res, next) => {
@@ -54,7 +54,7 @@ app.post('/bucket/:bucket', (req, res, next) => {
             console.log(`Synced index.html to ${bucket}`)
             res.redirect(`/bucket/${ bucket }`)
         })
-        .catch(console.error)
+        .catch(next)
 })
 
 // Errors

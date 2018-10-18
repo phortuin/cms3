@@ -6,19 +6,15 @@ const os = require('os')
 let s3 = new aws.S3()
 let key = 'index.html'
 
-const getHTML = async function(bucket = process.env.AWS_BUCKET_DEFAULT) {
+const getHTML = function(bucket = process.env.AWS_BUCKET_DEFAULT) {
     let params = {
         Bucket: bucket,
         Key: key,
     }
-    try {
-        return await s3.getObject(params).promise()
-    } catch(err) {
-        console.error(err)
-    }
+    return s3.getObject(params).promise()
 }
 
-const putHTML = async function(body, bucket = process.env.AWS_BUCKET_DEFAULT) {
+const putHTML = function(body, bucket = process.env.AWS_BUCKET_DEFAULT) {
     let params = {
         Bucket: bucket,
         Key: key,
@@ -26,11 +22,7 @@ const putHTML = async function(body, bucket = process.env.AWS_BUCKET_DEFAULT) {
         ContentEncoding: 'gzip',
         Body: body,
     }
-    try {
-        return await s3.putObject(params).promise()
-    } catch(err) {
-        console.error(err)
-    }
+    return s3.putObject(params).promise()
 }
 
 module.exports = { getHTML, putHTML };

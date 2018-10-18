@@ -9,15 +9,24 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.set('etag', false)
 app.use((req, res, next) => { res.removeHeader('X-Powered-By'); next() })
 
-function render(content) {
+function render(content, bucket) {
     return `
         <!doctype html>
         <html>
-        <head><title>CMS3</title><style>* { box-sizing: border-box } body { margin: 0 } body, textarea, button { font: 1em "iA Writer Duospace", monospace; } textarea { display: block; resize: none; width: 100vw; height: 100vh; outline: none; border: none; padding: 2rem } button { border: 0; background: #00f; color: white; padding: .5rem 1rem; position: fixed; right: 2rem; bottom: 2rem; }</style></head>
+        <head>
+            <title>CMS3</title>
+            <style>
+                * { box-sizing: border-box }
+                body { margin: 0 }
+                button { position: fixed; right: 2rem; bottom: 2rem; padding: .5rem 1rem; font: 1.25em 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: white; border-radius: 0.25em; border: 0; background: #4a49eb; }
+                textarea { font: 1em "iA Writer Duospace", monospace; }
+                textarea { width: 100vw; height: 100vh; padding: 2rem; resize: none; outline: none; border: none; }
+            </style>
+        </head>
         <body>
-            <form method="post" action="/">
+            <form method="post" action="/${ bucket }">
                 <textarea spellcheck="false" name="content" autofocus placeholder="TYPE STUFF">${ content || '' }</textarea>
-                <button>Save</button>
+                <button>Send to ${bucket}</button>
             </form>
         </body>
         </html>
@@ -25,14 +34,17 @@ function render(content) {
 }
 
 app.get('/', (req, res, next) => {
-    res.send(render(res.locals.content))
+    res.redirect(`/${process.env.AWS_BUCKET_DEFAULT}`)
 })
 
-app.post('/', (req, res, next) => {
-    res.locals.content = req.body.content
+app.get('/:bucket', (req, res, next) => {
+    res.send(render(req.body.content, req.params.bucket))
+})
+
+app.post('/:bucket', (req, res, next) => {
     gzip(req.body.content)
-        .then(s3sync.putHTML)
-    res.send(render(res.locals.content))
+        .then(gzippedBody => s3sync.putHTML(gzippedBody, req.params.bucket))
+        .then(() => res.send(render(req.body.content, req.params.bucket)))
 })
 
 // Errors

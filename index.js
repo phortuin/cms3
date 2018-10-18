@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser')
 const express = require('express')
-const os = require('os')
+const promisify = require('bluebird').promisify
+const gzip = promisify(require('zlib').gzip)
 const s3sync = require('./s3sync.js')
 const app = express()
 
@@ -30,7 +31,7 @@ app.get('/', (req, res, next) => {
 app.post('/', (req, res, next) => {
     res.locals.content = req.body.content
     gzip(req.body.content)
-        .then(gzippedBody => s3sync.putHTML(req.body.content))
+        .then(s3sync.putHTML)
     res.send(render(res.locals.content))
 })
 

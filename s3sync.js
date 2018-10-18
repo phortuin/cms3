@@ -3,21 +3,34 @@ const aws = require('aws-sdk')
 const path = require('path')
 const os = require('os')
 
-const putHTML = async function(body, bucket) {
-    let s3 = new aws.S3()
+let s3 = new aws.S3()
+let key = 'index.html'
+
+const getHTML = async function(bucket = process.env.AWS_BUCKET_DEFAULT) {
     let params = {
-        Bucket: bucket || process.env.AWS_BUCKET_DEFAULT,
-        Key: 'index.html',
-        ContentType: 'text/html; charset=utf-8',
-        ContentEncoding: 'gzip',
-        Body: body
+        Bucket: bucket,
+        Key: key,
     }
     try {
-        await s3.putObject(params).promise()
-        console.log(`Synced index.html to ${ bucket || process.env.AWS_BUCKET_DEFAULT }`);
+        return await s3.getObject(params).promise()
     } catch(err) {
         console.error(err)
     }
 }
 
-module.exports = { putHTML };
+const putHTML = async function(body, bucket = process.env.AWS_BUCKET_DEFAULT) {
+    let params = {
+        Bucket: bucket,
+        Key: key,
+        ContentType: 'text/html; charset=utf-8',
+        ContentEncoding: 'gzip',
+        Body: body,
+    }
+    try {
+        return await s3.putObject(params).promise()
+    } catch(err) {
+        console.error(err)
+    }
+}
+
+module.exports = { getHTML, putHTML };

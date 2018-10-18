@@ -2,6 +2,7 @@ const bodyParser = require('body-parser')
 const express = require('express')
 const promisify = require('bluebird').promisify
 const gzip = promisify(require('zlib').gzip)
+const gunzip = promisify(require('zlib').gunzip)
 const s3sync = require('./s3sync.js')
 const app = express()
 
@@ -14,7 +15,7 @@ function render(content, bucket) {
         <!doctype html>
         <html>
         <head>
-            <title>CMS3</title>
+            <title>cmS3</title>
             <style>
                 * { box-sizing: border-box }
                 body { margin: 0 }
@@ -24,7 +25,7 @@ function render(content, bucket) {
             </style>
         </head>
         <body>
-            <form method="post" action="/${ bucket }">
+            <form method="post" action="/bucket/${ bucket }">
                 <textarea spellcheck="false" name="content" autofocus placeholder="TYPE STUFF">${ content || '' }</textarea>
                 <button>Send to ${bucket}</button>
             </form>
@@ -34,17 +35,26 @@ function render(content, bucket) {
 }
 
 app.get('/', (req, res, next) => {
-    res.redirect(`/${process.env.AWS_BUCKET_DEFAULT}`)
+    res.redirect(`/bucket/${process.env.AWS_BUCKET_DEFAULT}`)
 })
 
-app.get('/:bucket', (req, res, next) => {
-    res.send(render(req.body.content, req.params.bucket))
+app.get('/bucket/:bucket', (req, res, next) => {
+    let bucket = req.params.bucket
+    s3sync.getHTML(bucket)
+        .then(data => gunzip(data.Body))
+        .then(gunzippedBody => res.send(render(gunzippedBody, bucket)))
+        .catch(console.error)
 })
 
-app.post('/:bucket', (req, res, next) => {
+app.post('/bucket/:bucket', (req, res, next) => {
+    let bucket = req.params.bucket
     gzip(req.body.content)
-        .then(gzippedBody => s3sync.putHTML(gzippedBody, req.params.bucket))
-        .then(() => res.send(render(req.body.content, req.params.bucket)))
+        .then(gzippedBody => s3sync.putHTML(gzippedBody, bucket))
+        .then(() => {
+            console.log(`Synced index.html to ${bucket}`)
+            res.redirect(`/bucket/${ bucket }`)
+        })
+        .catch(console.error)
 })
 
 // Errors

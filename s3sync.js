@@ -8,7 +8,7 @@ const putHTML = async function(body) {
     let params = {
         Bucket: process.env.AWS_BUCKET,
         Key: 'index.html',
-        ContentType: 'text/html',
+        ContentType: 'text/html; charset=utf-8',
         ContentEncoding: 'gzip',
         Body: body
     }

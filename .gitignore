@@ -15,4 +15,5 @@ npm-debug.log
 .DS_Store
 
 # environment vars
-.env
+.env*
+!.env.example

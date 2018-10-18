@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser')
 const express = require('express')
+const os = require('os')
 const s3sync = require('./s3sync.js')
 const promisify = require('bluebird').promisify
 const createDir = promisify(require('mkdirp'))
@@ -30,12 +31,10 @@ app.get('/', (req, res, next) => {
     res.send(render(res.locals.content))
 })
 
-let folderName = 'dist'
 app.post('/', (req, res, next) => {
     res.locals.content = req.body.content
-    createDir(folderName)
-        .then(() => gzip(req.body.content))
-        .then(gzippedBody => writeFile(`${ folderName }/index.html`, gzippedBody))
+    gzip(req.body.content)
+        .then(gzippedBody => writeFile(`${os.tmpdir}/cms3_index.html`, gzippedBody))
         .then(() => s3sync.sync())
     res.send(render(res.locals.content))
 })

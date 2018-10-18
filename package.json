@@ -9,13 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bluebird": "3.5.2",
+    "aws-sdk": "2.337.0",
     "body-parser": "1.18.3",
     "dotenv-safe": "6.1.0",
     "express": "4.16.4",
-    "mkdir": "0.0.2",
-    "ncp": "2.0.0",
-    "nodemon": "1.18.4",
-    "s3": "4.4.0"
+    "nodemon": "1.18.4"
   }
 }

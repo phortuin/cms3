@@ -2,10 +2,6 @@ const bodyParser = require('body-parser')
 const express = require('express')
 const os = require('os')
 const s3sync = require('./s3sync.js')
-const promisify = require('bluebird').promisify
-const createDir = promisify(require('mkdirp'))
-const gzip = promisify(require('zlib').gzip)
-const writeFile = promisify(require('fs').writeFile)
 const app = express()
 
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -34,8 +30,7 @@ app.get('/', (req, res, next) => {
 app.post('/', (req, res, next) => {
     res.locals.content = req.body.content
     gzip(req.body.content)
-        .then(gzippedBody => writeFile(`${os.tmpdir}/cms3_index.html`, gzippedBody))
-        .then(() => s3sync.sync())
+        .then(gzippedBody => s3sync.putHTML(req.body.content))
     res.send(render(res.locals.content))
 })
 

@@ -10,7 +10,10 @@
     "type": "git",
     "url": "https://github.com/phortuin/cms3.git"
   },
-  "author": "Anne Fortuin",
+  "author": {
+    "name": "Anne Fortuin",
+    "url": "phortuin.nl"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=8.0.0"
@@ -18,14 +21,12 @@
   "bugs": {
     "url": "https://github.com/phortuin/cms3/issues"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "aws-sdk": "2.337.0",
     "bluebird": "3.5.2",
     "body-parser": "1.18.3",
     "dotenv-safe": "6.1.0",
     "express": "4.16.4",
-    "nodemon": "1.18.4"
+    "nodemon": "^2.0.4"
   }
 }

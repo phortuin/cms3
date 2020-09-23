@@ -43,7 +43,13 @@ app.get('/bucket/:bucket', (req, res, next) => {
     s3sync.getHTML(bucket)
         .then(data => gunzip(data.Body))
         .then(gunzippedBody => res.send(render(gunzippedBody, bucket)))
-        .catch(next)
+        .catch(error => {
+            if (error.code === 'NoSuchKey') {
+                res.send(render(null, bucket))
+            } else {
+                next(error)
+            }
+        })
 })
 
 app.post('/bucket/:bucket', (req, res, next) => {

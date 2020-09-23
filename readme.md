@@ -12,5 +12,9 @@ An Express server will run on `localhost:3012` and show a full screen textarea +
 
 Simple websites made simple!
 
+## Todo
+
+- [x] BUG: If no index.html is found or is not gzipped, `getHTML` fails
+
 ---
 1. <a name="fn1"></a> Switch buckets by putting them in the URL: `localhost:3012/bucket/my-bucket`

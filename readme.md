@@ -14,8 +14,7 @@ Simple websites made simple!
 
 ## Todo
 
-- [ ] Remove bluebird package
-- [ ] Modernize code base and update packages
+- [ ] Modernize code base
 
 ---
 1. <a name="fn1"></a> Switch buckets by putting them in the URL: `localhost:3012/bucket/my-bucket`

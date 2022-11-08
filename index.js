@@ -1,6 +1,5 @@
 const { promisify } = require('util')
 
-const bodyParser = require('body-parser')
 const express = require('express')
 const gzip = promisify(require('zlib').gzip)
 const gunzip = promisify(require('zlib').gunzip)
@@ -11,7 +10,7 @@ const {
     DEFAULT_KEY,
 } = require('./s3sync.js')
 
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: true }))
 app.set('etag', false)
 app.use((req, res, next) => { res.removeHeader('X-Powered-By'); next() })
 

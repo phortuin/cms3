@@ -26,13 +26,12 @@ app.get('/', (req, res, next) => {
 
 // Render form
 app.get('/bucket/:bucket/:key?', (req, res, next) => {
-    const bucket = req.params.bucket
-    const key = req.params.key || DEFAULT_KEY
+    const { bucket, key = DEFAULT_KEY } = req.params
     getHTML(bucket, key)
-        .then((data) => gunzip(data.Body))
+        .then((body) => gunzip(body))
         .then((gunzippedBody) => res.send(render(gunzippedBody, bucket, key)))
         .catch((error) => {
-            if (error.code === 'NoSuchKey') {
+            if (error.code === 'NoSuchKey') { // Key missing, we’ll allow the user to create a new file
                 res.send(render(null, bucket, key))
             } else {
                 next(error)
@@ -42,8 +41,7 @@ app.get('/bucket/:bucket/:key?', (req, res, next) => {
 
 // Post form
 app.post('/bucket/:bucket/:key?', (req, res, next) => {
-    const bucket = req.params.bucket
-    const key = req.params.key || DEFAULT_KEY
+    const { bucket, key = DEFAULT_KEY } = req.params
     gzip(req.body.content)
         .then((gzippedBody) => putHTML(gzippedBody, bucket, key))
         .then(() => {

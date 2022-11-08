@@ -12,10 +12,6 @@ An Express server will run on `localhost:3012` and show a full screen textarea +
 
 Simple websites made simple!
 
-## Todo
-
-- [ ] Modernize code base
-
 ---
 1. <a name="fn1"></a> Switch buckets by putting them in the URL: `localhost:3012/bucket/my-bucket`
 2. <a name="fn2"></a> The default is `index.html` but you can send any text file to your bucket by putting it in the URL: `localhost:3012/bucket/my-bucket/otherfile.html`

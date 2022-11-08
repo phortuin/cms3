@@ -3,28 +3,42 @@ const path = require('path')
 const os = require('os')
 
 // NPM
-const aws = require('aws-sdk')
+const {
+    S3,
+    PutObjectCommand,
+    GetObjectCommand,
+} = require('@aws-sdk/client-s3')
 require('dotenv-safe').config()
 
 // Constants
 const DEFAULT_KEY = 'index.html'
 
 // Initialize S3
-const s3 = new aws.S3()
+const s3Client = new S3()
 
 /**
- * Gets S3 object with key name from bucket
+ * Gets S3 object with key name from bucket. Note that with the new SDK,
+ * getObjectCommand returns an instance of IncomingMessage while we need a
+ * Buffer. This is mitigated by transforming the Readable stream
+ * (=IncomingMessage) into a Buffer.
  *
+ * @see https://transang.me/modern-fetch-and-how-to-get-buffer-output-from-aws-sdk-v3-getobjectcommand/
  * @param  {String}
  * @param  {String}
  * @return {Promise<Buffer>}
  */
-function getHTML(bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KEY) {
-    const params = {
+async function getHTML(bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KEY) {
+    const response = await s3Client.send(new GetObjectCommand({
         Bucket: bucket,
         Key: key,
-    }
-    return s3.getObject(params).promise()
+    }))
+    const stream = response.Body
+    return new Promise((resolve, reject) => {
+        const chunks = []
+        stream.on('data', chunk => chunks.push(chunk))
+        stream.once('end', () => resolve(Buffer.concat(chunks)))
+        stream.once('error', reject)
+    })
 }
 
 /**
@@ -36,14 +50,13 @@ function getHTML(bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KEY) {
  * @return {Promise}
  */
 function putHTML(body, bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KEY) {
-    const params = {
+    return s3Client.send(new PutObjectCommand({
         Bucket: bucket,
         Key: key,
         ContentType: 'text/html; charset=utf-8',
         ContentEncoding: 'gzip',
         Body: body,
-    }
-    return s3.putObject(params).promise()
+    }))
 }
 
 module.exports = { getHTML, putHTML, DEFAULT_KEY };

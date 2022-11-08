@@ -22,7 +22,7 @@
     "url": "https://github.com/phortuin/cms3/issues"
   },
   "dependencies": {
-    "aws-sdk": "2.337.0",
+    "aws-sdk": "2.814.0",
     "body-parser": "1.18.3",
     "dotenv-safe": "6.1.0",
     "express": "4.16.4",

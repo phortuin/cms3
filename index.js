@@ -1,6 +1,7 @@
+const { promisify } = require('util')
+
 const bodyParser = require('body-parser')
 const express = require('express')
-const promisify = require('bluebird').promisify
 const gzip = promisify(require('zlib').gzip)
 const gunzip = promisify(require('zlib').gunzip)
 const app = express()

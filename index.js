@@ -1,75 +1,75 @@
 // Core
-const { promisify } = require('util')
-const gzip = promisify(require('zlib').gzip)
-const gunzip = promisify(require('zlib').gunzip)
+const { promisify } = require('util');
+const gzip = promisify(require('zlib').gzip);
+const gunzip = promisify(require('zlib').gunzip);
 
 // NPM
-const express = require('express')
+const express = require('express');
 
 // Local
 const {
     getHTML,
     putHTML,
     DEFAULT_KEY,
-} = require('./s3sync.js')
+} = require('./s3sync.js');
 
 // Initialize Express server
-const app = express()
-app.use(express.urlencoded({ extended: true }))
-app.set('etag', false)
-app.use((req, res, next) => { res.removeHeader('X-Powered-By'); next() })
+const app = express();
+app.use(express.urlencoded({ extended: true }));
+app.set('etag', false);
+app.use((req, res, next) => { res.removeHeader('X-Powered-By'); next(); });
 
 // Redirect from root to form
 app.get('/', (req, res, next) => {
-    res.redirect(`/bucket/${process.env.AWS_BUCKET_DEFAULT}/${DEFAULT_KEY}`)
-})
+    res.redirect(`/bucket/${process.env.AWS_BUCKET_DEFAULT}/${DEFAULT_KEY}`);
+});
 
 // Render form
 app.get('/bucket/:bucket/:key?', (req, res, next) => {
-    const { bucket, key = DEFAULT_KEY } = req.params
+    const { bucket, key = DEFAULT_KEY } = req.params;
     getHTML(bucket, key)
         .then((body) => gunzip(body))
         .then((gunzippedBody) => res.send(render(gunzippedBody, bucket, key)))
         .catch((error) => {
             if (error.code === 'NoSuchKey') { // Key missing, we’ll allow the user to create a new file
-                res.send(render(null, bucket, key))
+                res.send(render(null, bucket, key));
             } else {
-                next(error)
+                next(error);
             }
-        })
-})
+        });
+});
 
 // Post form
 app.post('/bucket/:bucket/:key?', (req, res, next) => {
-    const { bucket, key = DEFAULT_KEY } = req.params
+    const { bucket, key = DEFAULT_KEY } = req.params;
     gzip(req.body.content)
         .then((gzippedBody) => putHTML(gzippedBody, bucket, key))
         .then(() => {
-            console.log(`Synced ${key} to ${bucket}`)
-            res.redirect(`/bucket/${ bucket }/${ key }`)
+            console.log(`Synced ${key} to ${bucket}`);
+            res.redirect(`/bucket/${bucket}/${key}`);
         })
-        .catch(next)
-})
+        .catch(next);
+});
 
 // Errors
 app.use((err, req, res, next) => {
-    err.message = err.message || err.error
-    res.status(err.status || 500).send(`${err.message || 'Internal Server Error'}`)
+    err.message = err.message || err.error;
+    res.status(err.status || 500).send(`${err.message || 'Internal Server Error'}`);
     if (app.get('env') === 'development') {
-        console.error(err)
+        console.error(err);
     }
-})
+});
 
 // Not found
-app.use((req, res, next) => res.status(404).send('404'))
+app.use((req, res, next) => res.status(404).send('404'));
 
 // $RUN
-const port = process.env.PORT || 3012
+const port = process.env.PORT || 3012;
 app.listen(port, () => {
     if (app.get('env') === 'development') {
-        console.log(`Development server available on http://localhost:${port}`)
+        console.log(`Development server available on http://localhost:${port}`);
     }
-})
+});
 
 /**
  * Render HTML Form with S3 bucket name and file name embedded in the form,
@@ -96,11 +96,11 @@ function render(content, bucket, key) {
             </style>
         </head>
         <body>
-            <form method="post" action="/bucket/${ bucket }/${key}">
-                <textarea spellcheck="false" name="content" autofocus placeholder="TYPE STUFF">${ content || '' }</textarea>
+            <form method="post" action="/bucket/${bucket}/${key}">
+                <textarea spellcheck="false" name="content" autofocus placeholder="TYPE STUFF">${content || ''}</textarea>
                 <button>Send to ${bucket}/${key}</button>
             </form>
         </body>
         </html>
-    `
+    `;
 }

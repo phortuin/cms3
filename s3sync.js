@@ -1,20 +1,20 @@
 // Core
-const path = require('path')
-const os = require('os')
+const path = require('path');
+const os = require('os');
 
 // NPM
 const {
     S3,
     PutObjectCommand,
     GetObjectCommand,
-} = require('@aws-sdk/client-s3')
-require('dotenv-safe').config()
+} = require('@aws-sdk/client-s3');
+require('dotenv-safe').config();
 
 // Constants
-const DEFAULT_KEY = 'index.html'
+const DEFAULT_KEY = 'index.html';
 
 // Initialize S3
-const s3Client = new S3()
+const s3Client = new S3();
 
 /**
  * Gets S3 object with key name from bucket. Note that with the new SDK,
@@ -31,14 +31,14 @@ async function getHTML(bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KE
     const response = await s3Client.send(new GetObjectCommand({
         Bucket: bucket,
         Key: key,
-    }))
-    const stream = response.Body
+    }));
+    const stream = response.Body;
     return new Promise((resolve, reject) => {
-        const chunks = []
-        stream.on('data', chunk => chunks.push(chunk))
-        stream.once('end', () => resolve(Buffer.concat(chunks)))
-        stream.once('error', reject)
-    })
+        const chunks = [];
+        stream.on('data', chunk => chunks.push(chunk));
+        stream.once('end', () => resolve(Buffer.concat(chunks)));
+        stream.once('error', reject);
+    });
 }
 
 /**
@@ -56,7 +56,7 @@ function putHTML(body, bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KE
         ContentType: 'text/html; charset=utf-8',
         ContentEncoding: 'gzip',
         Body: body,
-    }))
+    }));
 }
 
 module.exports = { getHTML, putHTML, DEFAULT_KEY };

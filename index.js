@@ -3,14 +3,18 @@ const express = require('express')
 const promisify = require('bluebird').promisify
 const gzip = promisify(require('zlib').gzip)
 const gunzip = promisify(require('zlib').gunzip)
-const s3sync = require('./s3sync.js')
 const app = express()
+const {
+    getHTML,
+    putHTML,
+    DEFAULT_KEY,
+} = require('./s3sync.js')
 
 app.use(bodyParser.urlencoded({ extended: true }))
 app.set('etag', false)
 app.use((req, res, next) => { res.removeHeader('X-Powered-By'); next() })
 
-function render(content, bucket) {
+function render(content, bucket, key) {
     return `
         <!doctype html>
         <html>
@@ -25,9 +29,9 @@ function render(content, bucket) {
             </style>
         </head>
         <body>
-            <form method="post" action="/bucket/${ bucket }">
+            <form method="post" action="/bucket/${ bucket }/${key}">
                 <textarea spellcheck="false" name="content" autofocus placeholder="TYPE STUFF">${ content || '' }</textarea>
-                <button>Send to ${bucket}</button>
+                <button>Send to ${bucket}/${key}</button>
             </form>
         </body>
         </html>
@@ -35,30 +39,32 @@ function render(content, bucket) {
 }
 
 app.get('/', (req, res, next) => {
-    res.redirect(`/bucket/${process.env.AWS_BUCKET_DEFAULT}`)
+    res.redirect(`/bucket/${process.env.AWS_BUCKET_DEFAULT}/${DEFAULT_KEY}`)
 })
 
-app.get('/bucket/:bucket', (req, res, next) => {
+app.get('/bucket/:bucket/:key?', (req, res, next) => {
     let bucket = req.params.bucket
-    s3sync.getHTML(bucket)
+    let key = req.params.key || DEFAULT_KEY
+    getHTML(bucket, key)
         .then(data => gunzip(data.Body))
-        .then(gunzippedBody => res.send(render(gunzippedBody, bucket)))
+        .then(gunzippedBody => res.send(render(gunzippedBody, bucket, key)))
         .catch(error => {
             if (error.code === 'NoSuchKey') {
-                res.send(render(null, bucket))
+                res.send(render(null, bucket, key))
             } else {
                 next(error)
             }
         })
 })
 
-app.post('/bucket/:bucket', (req, res, next) => {
+app.post('/bucket/:bucket/:key?', (req, res, next) => {
     let bucket = req.params.bucket
+    let key = req.params.key || DEFAULT_KEY
     gzip(req.body.content)
-        .then(gzippedBody => s3sync.putHTML(gzippedBody, bucket))
+        .then(gzippedBody => putHTML(gzippedBody, bucket, key))
         .then(() => {
-            console.log(`Synced index.html to ${bucket}`)
-            res.redirect(`/bucket/${ bucket }`)
+            console.log(`Synced ${key} to ${bucket}`)
+            res.redirect(`/bucket/${ bucket }/${ key }`)
         })
         .catch(next)
 })

@@ -31,7 +31,7 @@ app.get('/bucket/:bucket/:key?', (req, res, next) => {
         .then((body) => gunzip(body))
         .then((gunzippedBody) => res.send(render(gunzippedBody, bucket, key)))
         .catch((error) => {
-            if (error.code === 'NoSuchKey') { // Key missing, we’ll allow the user to create a new file
+            if (error.Code === 'NoSuchKey') { // Key missing, we’ll allow the user to create a new file
                 res.send(render(null, bucket, key));
             } else {
                 next(error);

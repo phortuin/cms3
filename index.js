@@ -8,8 +8,8 @@ const express = require('express');
 
 // Local
 const {
-    getHTML,
-    putHTML,
+    getFile,
+    putFile,
     DEFAULT_KEY,
 } = require('./s3sync.js');
 
@@ -27,7 +27,7 @@ app.get('/', (req, res, next) => {
 // Render form
 app.get('/bucket/:bucket/:key?', (req, res, next) => {
     const { bucket, key = DEFAULT_KEY } = req.params;
-    getHTML(bucket, key)
+    getFile(bucket, key)
         .then((body) => gunzip(body))
         .then((gunzippedBody) => res.send(render(gunzippedBody, bucket, key)))
         .catch((error) => {
@@ -43,7 +43,7 @@ app.get('/bucket/:bucket/:key?', (req, res, next) => {
 app.post('/bucket/:bucket/:key?', (req, res, next) => {
     const { bucket, key = DEFAULT_KEY } = req.params;
     gzip(req.body.content)
-        .then((gzippedBody) => putHTML(gzippedBody, bucket, key))
+        .then((gzippedBody) => putFile(gzippedBody, bucket, key))
         .then(() => {
             console.log(`Synced ${key} to ${bucket}`);
             res.redirect(`/bucket/${bucket}/${key}`);

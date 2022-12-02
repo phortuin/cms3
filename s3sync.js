@@ -8,6 +8,9 @@ const {
     PutObjectCommand,
     GetObjectCommand,
 } = require('@aws-sdk/client-s3');
+const mime = require('mime-types');
+
+// Inject .env variables from config file
 require('dotenv-safe').config();
 
 // Constants
@@ -27,7 +30,7 @@ const s3Client = new S3();
  * @param  {String}
  * @return {Promise<Buffer>}
  */
-async function getHTML(bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KEY) {
+async function getFile(bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KEY) {
     const response = await s3Client.send(new GetObjectCommand({
         Bucket: bucket,
         Key: key,
@@ -49,14 +52,14 @@ async function getHTML(bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KE
  * @param  {String} key
  * @return {Promise}
  */
-function putHTML(body, bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KEY) {
+function putFile(body, bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KEY) {
     return s3Client.send(new PutObjectCommand({
         Bucket: bucket,
         Key: key,
-        ContentType: 'text/html; charset=utf-8',
+        ContentType: mime.contentType(key) || 'application/octet-stream',
         ContentEncoding: 'gzip',
         Body: body,
     }));
 }
 
-module.exports = { getHTML, putHTML, DEFAULT_KEY };
+module.exports = { getFile, putFile, DEFAULT_KEY };

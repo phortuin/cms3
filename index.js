@@ -87,7 +87,7 @@ app.listen(port, () => {
  * @return {String}
  */
 async function render(content, bucket, key) {
-    const filesList = await getFilesList();
+    const filesList = await getFilesList(bucket);
     const nonBinaries = ['.html', '.css', '.js', '.txt'];
     const files = filesList.Contents.map((item) => {
         const url = nonBinaries.includes(path.extname(item.Key))

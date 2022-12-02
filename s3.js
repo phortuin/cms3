@@ -7,6 +7,7 @@ const {
     S3,
     PutObjectCommand,
     GetObjectCommand,
+    ListObjectsCommand,
 } = require('@aws-sdk/client-s3');
 const mime = require('mime-types');
 
@@ -62,4 +63,16 @@ function putFile(body, bucket = process.env.AWS_BUCKET_DEFAULT, key = DEFAULT_KE
     }));
 }
 
-module.exports = { getFile, putFile, DEFAULT_KEY };
+/**
+ * Gets list of objects from a bucket
+ *
+ * @param  {String} bucket
+ * @return {Promise}
+ */
+function getFilesList(bucket = process.env.AWS_BUCKET_DEFAULT) {
+    return s3Client.send(new ListObjectsCommand({
+        Bucket: bucket
+    }))
+}
+
+module.exports = { getFile, putFile, getFilesList, DEFAULT_KEY };

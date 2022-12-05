@@ -115,7 +115,7 @@ async function render(content, bucket, key) {
     const nonBinaries = ['.html', '.css', '.js', '.txt'];
     const files = filesList.Contents.map((item) => {
         const url = nonBinaries.includes(path.extname(item.Key))
-            ? item.Key
+            ? `/bucket/${bucket}/${item.Key}`
             : getResourceUrl(item.Key, bucket);
         return {
             url,

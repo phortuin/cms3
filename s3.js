@@ -1,22 +1,23 @@
 // Core
-const path = require('path');
-const os = require('os');
+import path from 'node:path';
+import os from 'node:os';
 
-// NPM
-const {
+// Packages
+import {
     S3,
     PutObjectCommand,
     GetObjectCommand,
     DeleteObjectCommand,
     ListObjectsCommand,
-} = require('@aws-sdk/client-s3');
-const mime = require('mime-types');
+} from '@aws-sdk/client-s3';
+import mime from 'mime-types';
+import dotenv from 'dotenv-safe';
 
 // Inject .env variables from config file
-require('dotenv-safe').config();
+dotenv.config();
 
 // Constants
-const DEFAULT_KEY = 'index.html';
+export const DEFAULT_KEY = 'index.html';
 
 // Initialize S3
 const s3Client = new S3();
@@ -32,7 +33,7 @@ const s3Client = new S3();
  * @param  {String} bucket
  * @return {Promise<Buffer>}
  */
-async function getFile(key = DEFAULT_KEY, bucket = process.env.AWS_BUCKET_DEFAULT) {
+export async function getFile(key = DEFAULT_KEY, bucket = process.env.AWS_BUCKET_DEFAULT) {
     const response = await s3Client.send(new GetObjectCommand({
         Bucket: bucket,
         Key: key,
@@ -54,7 +55,7 @@ async function getFile(key = DEFAULT_KEY, bucket = process.env.AWS_BUCKET_DEFAUL
  * @param  {String} bucket
  * @return {Promise}
  */
-function putFile(body, key = DEFAULT_KEY, bucket = process.env.AWS_BUCKET_DEFAULT) {
+export function putFile(body, key = DEFAULT_KEY, bucket = process.env.AWS_BUCKET_DEFAULT) {
     return s3Client.send(new PutObjectCommand({
         Bucket: bucket,
         Key: key,
@@ -71,7 +72,7 @@ function putFile(body, key = DEFAULT_KEY, bucket = process.env.AWS_BUCKET_DEFAUL
  * @param  {String} bucket
  * @return {Promise}
  */
-function destroyFile(key, bucket = process.env.AWS_BUCKET_DEFAULT) {
+export function destroyFile(key, bucket = process.env.AWS_BUCKET_DEFAULT) {
     return s3Client.send(new DeleteObjectCommand({
         Bucket: bucket,
         Key: key,
@@ -84,10 +85,8 @@ function destroyFile(key, bucket = process.env.AWS_BUCKET_DEFAULT) {
  * @param  {String} bucket
  * @return {Promise}
  */
-function getFilesList(bucket = process.env.AWS_BUCKET_DEFAULT) {
+export function getFilesList(bucket = process.env.AWS_BUCKET_DEFAULT) {
     return s3Client.send(new ListObjectsCommand({
         Bucket: bucket
     }));
 }
-
-module.exports = { getFile, putFile, destroyFile, getFilesList, DEFAULT_KEY };

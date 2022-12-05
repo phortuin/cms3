@@ -1,23 +1,26 @@
 // Core
-const { promisify } = require('util');
-const gzip = promisify(require('zlib').gzip);
-const gunzip = promisify(require('zlib').gunzip);
-const path = require('path');
+import { promisify } from 'node:util';
+import { gzip as callbackGzip, gunzip as callbackGunzip } from 'node:zlib';
+import path from 'node:path';
 
-// Inject .env variables from config file
-require('dotenv-safe').config();
+// Packages
+import dotenv from 'dotenv-safe';
+import express from 'express';
 
-// NPM
-const express = require('express');
-
-// Local
-const {
+// Local modules
+import {
     getFile,
     putFile,
     destroyFile,
     getFilesList,
     DEFAULT_KEY,
-} = require('./s3.js');
+} from './s3.js';
+// Inject .env variables from config file
+dotenv.config();
+
+// Promisify gzip libs
+const gzip = promisify(callbackGzip);
+const gunzip = promisify(callbackGunzip);
 
 // Initialize Express server
 const app = express();

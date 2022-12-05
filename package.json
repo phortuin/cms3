@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Send textarea content as index.html to s3 bucket",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "nodemon index.js"
   },

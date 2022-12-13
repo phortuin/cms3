@@ -75,7 +75,6 @@ app.delete('/bucket/:bucket/:key', (req, res, next) => {
     const { bucket, key } = req.params;
     destroyFile(key, bucket)
         .then((response) => {
-            console.log(response)
             console.log(`Deleted ${key} from ${bucket}`);
             res.redirect(`/bucket/${bucket}/${DEFAULT_KEY}`);
         })

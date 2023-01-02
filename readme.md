@@ -1,6 +1,8 @@
 # cmS3
 
-Syncs content of textarea as a gzipped file to an S3 bucket of your choice.
+> Sync content of textarea as a gzipped file to an S3 bucket of your choice.
+
+![](https://www.annefortuin.nl/cms3.png)
 
 ## Set up
 - Install dependencies with `npm i`
@@ -13,5 +15,5 @@ An Express server will run on `localhost:3012` and show a full screen textarea, 
 Simple websites made simple!
 
 ---
-1. <a name="fn1"></a> Switch buckets by putting them in the URL: `localhost:3012/bucket/my-bucket`
-2. <a name="fn2"></a> The default is `index.html` but you can send any text file to your bucket by putting it in the URL: `localhost:3012/bucket/my-bucket/styles.css`
+1. <a name="fn1"></a> Switch buckets by putting them in the URL: `localhost:3012/my-bucket`
+2. <a name="fn2"></a> The default is `index.html` but you can send any text file to your bucket by putting it in the URL: `localhost:3012/my-bucket/styles.css`

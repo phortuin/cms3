@@ -48,6 +48,20 @@ export async function getFile(key = DEFAULT_KEY, bucket = process.env.AWS_BUCKET
 }
 
 /**
+ * Convenience wrapper for putFile for non-binaries
+ */
+export function putTextFile(body, key = DEFAULT_KEY, bucket = process.env.AWS_BUCKET_DEFAULT) {
+    return putFile(body, key, bucket, false);
+}
+
+/**
+ * Convenience wrapper for putFile for binaries
+ */
+export function putBinaryFile(body, key, bucket = process.env.AWS_BUCKET_DEFAULT) {
+    return putFile(body, key, bucket, true);
+}
+
+/**
  * Puts an S3 object with key name into bucket, using body as the key’s contents
  *
  * @param  {String} body
@@ -55,14 +69,15 @@ export async function getFile(key = DEFAULT_KEY, bucket = process.env.AWS_BUCKET
  * @param  {String} bucket
  * @return {Promise}
  */
-export function putFile(body, key = DEFAULT_KEY, bucket = process.env.AWS_BUCKET_DEFAULT) {
-    return s3Client.send(new PutObjectCommand({
+function putFile(body, key, bucket, isBinary) {
+    const options = {
         Bucket: bucket,
         Key: key,
         ContentType: mime.contentType(key) || 'application/octet-stream',
-        ContentEncoding: 'gzip',
         Body: body,
-    }));
+        ContentEncoding: isBinary ? undefined : 'gzip',
+    }
+    return s3Client.send(new PutObjectCommand(options))
 }
 
 /**

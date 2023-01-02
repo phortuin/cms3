@@ -1,6 +1,6 @@
 # cmS3
 
-> Sync content of textarea as a gzipped file to an S3 bucket of your choice.
+> Syncs content of textarea as a gzipped file to an S3 bucket of your choice
 
 ![](https://www.annefortuin.nl/cms3.png)
 
